@@ -1,0 +1,91 @@
+{
+  "books": [
+    {
+      "id": "matematik",
+      "title": "Matematik 9",
+      "subject": "Matematik",
+      "pages": 203,
+      "hash": "541ce1f529a5b96b5536d054f25f369c90b4149c",
+      "units": [
+        "1 SAYILAR",
+        "1 Sayılar",
+        "1 Ölçme ve Değerlendirme",
+        "2 Nicelikler ve Değişimler",
+        "2 Ölçme ve Değerlendirme",
+        "3 Geometrik Şekiller",
+        "3 Ölçme ve Değerlendirme"
+      ]
+    },
+    {
+      "id": "fizik",
+      "title": "Fizik 9",
+      "subject": "Fizik",
+      "pages": 270,
+      "hash": "a53b23591a5cfa2dbf2ddec382c896ac8502fd19",
+      "units": [
+        "Ünite"
+      ]
+    },
+    {
+      "id": "kimya",
+      "title": "Kimya 9",
+      "subject": "Kimya",
+      "pages": 286,
+      "hash": "b529dfcdae7644cd5700ae6442efccf4ce7b9e9c",
+      "units": [
+        "1 Etkileşim",
+        "1 Ölçme ve Değerlendirme Soruları",
+        "2 Çeşitlilik",
+        "2 Ölçme ve Değerlendirme Soruları",
+        "3 Sürdürülebilirlik",
+        "3 Ölçme ve Değerlendirme Soruları"
+      ]
+    },
+    {
+      "id": "biyoloji",
+      "title": "Biyoloji 9",
+      "subject": "Biyoloji",
+      "pages": 183,
+      "hash": "7efc254107de3659aad4f308bc49e0bde34e7b61",
+      "units": [
+        "1 Yaşam",
+        "1 Ölçme ve Değerlendirme Soruları",
+        "2 Ölçme ve Değerlendirme Soruları"
+      ]
+    },
+    {
+      "id": "cografya",
+      "title": "Coğrafya 9",
+      "subject": "Coğrafya",
+      "pages": 242,
+      "hash": "d8cb47b5ea48c2736f436d249d7a17d86303e968",
+      "units": [
+        "3 · DOĞAL SİSTEMLER VE SÜREÇLER"
+      ]
+    },
+    {
+      "id": "tarih",
+      "title": "Tarih 9",
+      "subject": "Tarih",
+      "pages": 262,
+      "hash": "97487ba2c1cbecf5d53301e992ef71c7a08081cb",
+      "units": []
+    },
+    {
+      "id": "edebiyat",
+      "title": "Türk Dili ve Edebiyatı 9",
+      "subject": "Edebiyat",
+      "pages": 313,
+      "hash": "10621fde3f7f877a73ddc4a9a08f76a89c2c43be",
+      "units": [
+        "1 · Sözün İnceliği",
+        "2",
+        "2 · Anlam Arayışı",
+        "2 Anlam Arayışı",
+        "3 · Anlamın Yapı Taşları",
+        "4",
+        "4 · Dilin Zenginliği"
+      ]
+    }
+  ]
+}

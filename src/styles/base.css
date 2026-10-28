@@ -1,0 +1,457 @@
+@import '@fontsource-variable/inter';
+
+:root {
+  /* Overwritten by applyPalette() at runtime; these are only a first paint. */
+  --sky-top: hsl(240 8% 13%);
+  --sky-bottom: hsl(240 10% 6%);
+  --sky-hue: 240;
+  --accent: hsl(28 45% 72%);
+  --glass-darkness: 0.78;
+
+  --ink: hsl(0 0% 100% / 0.94);
+  --ink-soft: hsl(0 0% 100% / 0.62);
+  --ink-faint: hsl(0 0% 100% / 0.34);
+
+  --panel-radius: 26px;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* Every palette is dark, so this never flips. Keeping it fixed also means
+     native controls (checkboxes, caret, scrollbars) stay legible. */
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+#app {
+  position: relative;
+}
+
+body {
+  font-family: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background: var(--sky-bottom);
+  color: var(--ink);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---------- atmosphere ---------- */
+
+.sky {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(165deg, var(--sky-top) 0%, var(--sky-bottom) 70%);
+  transition: background 3s linear;
+  z-index: 0;
+}
+
+.sky::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    120% 90% at 50% 105%,
+    hsl(var(--sky-hue) 45% 40% / 0.18),
+    transparent 62%
+  );
+  pointer-events: none;
+}
+
+.blob {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.26;
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+}
+
+.blob--a {
+  width: 62vmax;
+  height: 62vmax;
+  left: -18vmax;
+  top: -26vmax;
+  background: radial-gradient(circle, hsl(calc(var(--sky-hue) + 24) 55% 42% / 0.8), transparent 68%);
+  animation: drift-a 52s ease-in-out infinite alternate;
+}
+
+.blob--b {
+  width: 54vmax;
+  height: 54vmax;
+  right: -16vmax;
+  bottom: -22vmax;
+  background: radial-gradient(circle, hsl(calc(var(--sky-hue) - 26) 58% 40% / 0.7), transparent 70%);
+  animation: drift-b 67s ease-in-out infinite alternate;
+}
+
+@keyframes drift-a {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(9vmax, 7vmax, 0) scale(1.14);
+  }
+}
+
+@keyframes drift-b {
+  from {
+    transform: translate3d(0, 0, 0) scale(1.08);
+  }
+  to {
+    transform: translate3d(-8vmax, -6vmax, 0) scale(0.94);
+  }
+}
+
+/* ---------- layout ---------- */
+
+.stage {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: clamp(12px, 2.5vmin, 32px);
+  transition:
+    opacity 0.45s var(--ease),
+    transform 0.45s var(--ease);
+}
+
+/* While the workspace is open the clock stays visible but recedes. */
+body[data-view='workspace'] .stage {
+  opacity: 0;
+  transform: scale(0.96);
+  pointer-events: none;
+}
+
+body[data-view='workspace'] .blob {
+  opacity: 0.14;
+}
+
+.glass {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* Size to the clock: a 1500px panel around 580px of digits is an empty box. */
+  width: fit-content;
+  min-width: min(78vw, 620px);
+  max-width: min(96vw, 1500px);
+  padding: clamp(26px, 5vmin, 66px) clamp(30px, 6vmin, 82px);
+  border-radius: var(--panel-radius);
+  background: linear-gradient(
+    150deg,
+    hsl(0 0% 100% / calc(0.13 - var(--glass-darkness) * 0.1)),
+    hsl(0 0% 100% / calc(0.04 - var(--glass-darkness) * 0.03))
+  );
+  backdrop-filter: blur(30px) saturate(140%);
+  -webkit-backdrop-filter: blur(30px) saturate(140%);
+  box-shadow:
+    0 1px 0 0 hsl(0 0% 100% / 0.22) inset,
+    0 0 0 1px hsl(0 0% 100% / 0.08),
+    0 32px 90px -20px hsl(240 40% 3% / 0.6);
+  transition:
+    opacity 0.6s var(--ease),
+    transform 0.8s var(--ease),
+    box-shadow 0.6s var(--ease);
+}
+
+.glass__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(6px, 1.4vmin, 18px);
+}
+
+/* ---------- progress ring ---------- */
+
+.ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.ring__track {
+  stroke: hsl(0 0% 100% / 0.07);
+  stroke-width: 1.5;
+}
+
+.ring__fill {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  opacity: 0;
+  transition:
+    stroke-dashoffset 0.95s linear,
+    opacity 0.5s var(--ease),
+    stroke 0.6s linear;
+}
+
+.glass[data-timer='focus'] .ring__fill {
+  opacity: 0.85;
+}
+
+.glass[data-timer='shortBreak'] .ring__fill,
+.glass[data-timer='longBreak'] .ring__fill {
+  stroke: hsl(150 30% 62%);
+  opacity: 0.7;
+}
+
+.glass[data-timer-running='false'] .ring__fill {
+  opacity: 0.3;
+}
+
+/* A paused session gets a breathing pulse so it reads as "waiting". */
+.glass[data-timer-running='false'][data-timer='focus'] .ring__track,
+.glass[data-timer-running='false'][data-timer='shortBreak'] .ring__track,
+.glass[data-timer-running='false'][data-timer='longBreak'] .ring__track {
+  stroke: hsl(0 0% 100% / 0.13);
+}
+
+/* ---------- clock type ---------- */
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.8em;
+  font-size: clamp(0.62rem, 1.05vmin, 0.95rem);
+  font-weight: 500;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.eyebrow__rule {
+  width: clamp(18px, 3vmin, 44px);
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
+}
+
+.time {
+  display: flex;
+  align-items: baseline;
+  gap: 0.02em;
+  font-size: clamp(4.5rem, 21vmin, 21rem);
+  font-weight: 200;
+  line-height: 0.86;
+  letter-spacing: -0.045em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1, 'ss01' 1;
+  margin-block: clamp(2px, 1vmin, 12px);
+}
+
+.time__group {
+  display: inline-flex;
+}
+
+.time__colon {
+  display: inline-block;
+  width: 0.34em;
+  text-align: center;
+  opacity: 0.34;
+  font-weight: 150;
+  transform: translateY(-0.06em);
+}
+
+.time__seconds {
+  font-size: 0.24em;
+  font-weight: 300;
+  letter-spacing: 0;
+  opacity: 0.42;
+  margin-left: 0.42em;
+  font-variant-numeric: tabular-nums;
+  min-width: 1.9em;
+}
+
+.time__seconds[hidden] {
+  display: none;
+}
+
+.time__meridiem {
+  font-size: 0.16em;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin-left: 0.5em;
+}
+
+.date-line {
+  font-size: clamp(0.78rem, 1.5vmin, 1.28rem);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--ink-soft);
+}
+
+/* ---------- pomodoro readout ---------- */
+
+.timer-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  margin-top: 0.4em;
+  font-size: clamp(0.62rem, 1.05vmin, 0.82rem);
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.timer-row[hidden] {
+  display: none;
+}
+
+.timer-row__phase {
+  /* Keep the label optically separate from the digits that follow. */
+  margin-right: 0.15em;
+}
+
+.timer-row__value {
+  padding: 0 0.1em;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  opacity: 0.94;
+}
+
+.timer-row__sep {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+}
+
+.timer-row__count {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.12em;
+}
+
+/* ---------- extras ---------- */
+
+.extras {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 2vmin, 26px);
+  font-size: clamp(0.62rem, 1.05vmin, 0.86rem);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 0.7s var(--ease),
+    transform 0.7s var(--ease);
+  white-space: nowrap;
+}
+
+.extras__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+}
+
+.extras__sep {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+/* ---------- idle / modes ---------- */
+
+body[data-active='true'] .extras {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+body[data-active='true'] {
+  cursor: default;
+}
+
+body[data-active='false'] {
+  cursor: none;
+}
+
+/* While the timer is running the extras stay put, so the remaining time does
+   not vanish mid-session just because the mouse stopped moving. */
+body[data-timer-active='true'] .extras {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+body[data-dim='true'] .glass {
+  opacity: 0.38;
+}
+
+body[data-dim='true'] .blob {
+  opacity: 0.1;
+}
+
+body[data-burnin='true'] .glass {
+  animation: burnin 200s steps(1) infinite;
+}
+
+@keyframes burnin {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(3px, -2px);
+  }
+  50% {
+    transform: translate(-2px, 3px);
+  }
+  75% {
+    transform: translate(2px, 2px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blob {
+    animation: none;
+  }
+  .sky,
+  .glass,
+  .stage,
+  .ring__fill {
+    transition: none;
+  }
+  body[data-burnin='true'] .glass {
+    animation: none;
+  }
+}
+
+/* ---------- accessibility ---------- */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
